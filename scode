@@ -1,0 +1,116 @@
+import tkinter as tk
+import random
+import time
+from tkinter import messagebox
+
+class QuizGame(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("Python Quiz Game")
+        self.geometry("400x300")
+
+        self.score = 0
+        self.timer = None
+
+        self.easy_questions = [
+            {"question": "What is the capital of France?", "answer": "Paris"},
+            {"question": "What is 2 + 2?", "answer": "4"},
+            {"question": "Which planet is known as the Red Planet?", "answer": "Mars"}
+        ]
+
+        self.medium_questions = [
+            {"question": "What is the powerhouse of the cell?", "answer": "Mitochondria"},
+            {"question": "Who wrote 'Romeo and Juliet'?", "answer": "William Shakespeare"},
+            {"question": "What is the chemical symbol for water?", "answer": "H2O"}
+        ]
+
+        self.difficult_questions = [
+            {"question": "What is the largest mammal in the world?", "answer": "Blue Whale"},
+            {"question": "In which year did World War I begin?", "answer": "1914"},
+            {"question": "What is the tallest mountain in the world?", "answer": "Mount Everest"}
+        ]
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.label = tk.Label(self.master, text="Select Level:")
+        self.label.pack()
+
+        self.easy_button = tk.Radiobutton(self.master, text="Easy", variable=self.level, value="easy")
+        self.easy_button.pack()
+
+        self.medium_button = tk.Radiobutton(self.master, text="Medium", variable=self.level, value="medium")
+        self.medium_button.pack()
+
+        self.difficult_button = tk.Radiobutton(self.master, text="Difficult", variable=self.level, value="difficult")
+        self.difficult_button.pack()
+
+        self.start_button = tk.Button(self.master, text="Start Quiz", command=self.start_quiz)
+        self.start_button.pack()
+
+
+        self.title_label = tk.Label(self, text="Welcome to Python Quiz Game", font=("Helvetica", 16))
+        self.title_label.pack(pady=10)
+
+        self.start_button = tk.Button(self, text="Start Game", command=self.start_game)
+        self.start_button.pack(pady=10)
+
+        self.score_label = tk.Label(self, text="Score: 0", font=("Helvetica", 12))
+        self.score_label.pack()
+
+    def start_game(self):
+        messagebox.showinfo("Quiz Game", "You have 5 minutes to complete the quiz!")
+        self.score = 0
+        self.score_label.config(text="Score: 0")
+        self.start_button.config(state=tk.DISABLED)
+        self.start_round()
+
+    def start_round(self):
+        self.timer = 300  # 5 minutes
+        self.update_timer()
+        self.ask_question()
+
+    def update_timer(self):
+        if self.timer > 0:
+            self.timer -= 1
+            self.after(1000, self.update_timer)
+        else:
+            self.end_game()
+
+    def ask_question(self):
+        # Determine level
+        if self.score < 20:
+            level_questions = self.easy_questions
+        elif self.score < 40:
+            level_questions = self.medium_questions
+        else:
+            level_questions = self.difficult_questions
+
+        # Randomly select a question
+        question = random.choice(level_questions)
+        self.display_question(question)
+
+    def display_question(self, question):
+        # Display question here
+        # For simplicity, let's just print it to console
+        print("Question: ", question["question"])
+        
+        # Example answer validation:
+        # if answer == question["answer"]:
+        #     self.score += 10
+        #     self.score_label.config(text="Score: {}".format(self.score))
+        
+        # Start another round after displaying question
+        self.after(5000, self.start_round)
+
+    def end_game(self):
+        # Save score to file
+        with open("scores.txt", "a") as file:
+            file.write("Score: {}\n".format(self.score))
+        self.start_button.config(state=tk.NORMAL)
+        self.title_label.config(text="Game Over")
+
+if __name__ == "__main__":
+    app = QuizGame()
+    app.mainloop()
